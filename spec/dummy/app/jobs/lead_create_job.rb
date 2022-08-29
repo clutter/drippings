@@ -1,0 +1,2 @@
+class LeadCreateJob < ApplicationJob
+end
