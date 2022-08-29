@@ -1,0 +1,33 @@
+require:
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.7.6
+  NewCops: enable
+  Exclude:
+    - spec/dummy/config/environments/*.rb
+    - spec/dummy/config/puma.rb
+    - spec/dummy/db/schema.rb
+    - vendor/bundle/**/*
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Gemspec/RequireMFA:
+  Enabled: false
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
