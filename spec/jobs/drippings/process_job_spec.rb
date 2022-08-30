@@ -1,8 +1,10 @@
 RSpec.describe Drippings::ProcessJob do
   let(:job) { described_class.new }
+  let(:args) { ['some_arg'] }
+  let(:kwargs) { { some: 'kwarg' } }
 
   describe '#perform' do
-    subject(:perform) { job.perform(scheduling) }
+    subject(:perform) { job.perform(scheduling, *args, **kwargs) }
 
     before { allow(job).to receive(:process) }
 
@@ -15,7 +17,7 @@ RSpec.describe Drippings::ProcessJob do
 
       it 'calls process on the resource' do
         perform
-        expect(job).to have_received(:process).with(scheduling.resource)
+        expect(job).to have_received(:process).with(scheduling.resource, *args, **kwargs)
       end
     end
 
