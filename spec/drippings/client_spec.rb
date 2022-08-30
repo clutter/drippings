@@ -1,9 +1,11 @@
 RSpec.describe Drippings::Client do
   let(:client) { described_class.new }
   let(:name) { 'Lead::Followup' }
+  let(:phone) { '555-555-5555' }
+  let(:transactional) { true }
 
   before do
-    client.register(name, LeadFollowupJob, -> { Lead.all })
+    client.register(name, LeadFollowupJob, -> { Lead.all }, phone, transactional: transactional)
   end
 
   describe '#kickoff' do
@@ -25,7 +27,7 @@ RSpec.describe Drippings::Client do
       end
 
       it 'enqueues a LeadFollowupJob' do
-        expect { schedule }.to have_enqueued_job(LeadFollowupJob)
+        expect { schedule }.to have_enqueued_job(LeadFollowupJob).with(anything, phone, transactional: transactional)
       end
     end
 
