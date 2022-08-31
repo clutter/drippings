@@ -1,5 +1,5 @@
 # Drippings
-Short description and motivation.
+Drippings is a gem used to quickly create drip campaigns within rails apps without boilerplate de-duping logic
 
 ## Usage
 To define a drip, create a subclass of `Drippings::ProcessJob` which implements `process`. For example:
@@ -14,14 +14,42 @@ class LeadFollowupJob < Drippings::ProcessJob
 end
 ```
 
+`ProcessJob` subclasses can also accept any ad hoc arguments you may need as well:
+
+```ruby
+class LeadFollowupJob < Drippings::ProcessJob
+  
+  # @param lead [Lead] the lead to email
+  def process(lead, phone, transactional:)
+    MessageSenderService.send(body: 'Hello, buy my product!', lead: lead, phone: phone, transactional: transactional)
+  end
+end
+```
+
 To define the schedule on which you want your drips to process, register a drip by defining a
-drip name, process job, and scope:
+drip name, process job subclass, scope, and any arguments you want to pass:
 
 ```ruby
 # config/initializers/drippings.rb
 Drippings.configure do |config|
-  config.register("Lead::Followup", LeadFollowupJob, -> { Lead.active })
+  config.register(
+    "Lead::Followup",
+    LeadFollowupJob,
+    -> { Lead.active },
+    '555-555-5555',
+    transactional: true
+  )
 end
+```
+
+Finally, add the `Drippings::Kickoff` job to your recurring job scheduler, such as sidekiq-scheduler
+
+```yml
+# sidekiq.yml
+drippings_kickoff_job:
+    cron: '*/15 * * * * UTC'
+    class: Drippings::KickoffJob
+    enabled: false
 ```
 
 ## Installation
@@ -40,9 +68,6 @@ Or install it yourself as:
 ```bash
 $ gem install drippings
 ```
-
-## Contributing
-Contribution directions go here.
 
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
