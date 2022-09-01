@@ -14,20 +14,25 @@ class LeadFollowupJob < Drippings::ProcessJob
 end
 ```
 
-`ProcessJob` subclasses can also accept any ad hoc arguments you may need as well:
+`ProcessJob` subclasses can also accept any ad hoc arguments you may need:
 
 ```ruby
 class LeadFollowupJob < Drippings::ProcessJob
   
   # @param lead [Lead] the lead to email
-  def process(lead, phone, transactional:)
-    MessageSenderService.send(body: 'Hello, buy my product!', lead: lead, phone: phone, transactional: transactional)
+  def process(lead, phone:, transactional:)
+    MessageSenderService.send(
+      body: 'Hello, buy my product!',
+      lead: lead,
+      phone: phone,
+      transactional: transactional
+    )
   end
 end
 ```
 
 To define the schedule on which you want your drips to process, register a drip by defining a
-drip name, process job subclass, scope, and any arguments you want to pass:
+drip name, process job subclass, scope, and any additional arguments you want to pass via `options`:
 
 ```ruby
 # config/initializers/drippings.rb
@@ -36,8 +41,31 @@ Drippings.configure do |config|
     "Lead::Followup",
     LeadFollowupJob,
     -> { Lead.active },
-    '555-555-5555',
-    transactional: true
+    options: {
+      phone: '555-555-5555',
+      transactional: true,
+    }
+  )
+end
+```
+
+You can also define a time to send your messages by defining a
+`wait_until` (formatted as a hash of time units) and a `time_zone`, which
+can either be a proc do determine a timezone per resource, or a string to define
+a timezone for all resources:
+
+```ruby
+Drippings.configure do |config|
+  config.register(
+    "Lead::Followup",
+    LeadFollowupJob,
+    -> { Lead.active },
+    wait_until: { hour: 16 }, # 4PM
+    time_zone: ->(lead) { lead.time_zone },
+    options: {
+      phone: '555-555-5555',
+      transactional: true,
+    }
   )
 end
 ```

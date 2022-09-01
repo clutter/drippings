@@ -9,6 +9,7 @@ FactoryBot.find_definitions
 ActiveJob::Base.queue_adapter = :test
 
 RSpec.configure do |config|
+  config.include ActiveSupport::Testing::TimeHelpers
   config.include FactoryBot::Syntax::Methods
 
   config.use_transactional_fixtures = true
