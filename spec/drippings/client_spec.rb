@@ -3,9 +3,19 @@ RSpec.describe Drippings::Client do
   let(:name) { 'Lead::Followup' }
   let(:phone) { '555-555-5555' }
   let(:transactional) { true }
+  let(:wait_until) { nil }
 
   before do
-    client.register(name, LeadFollowupJob, -> { Lead.all }, phone, transactional: transactional)
+    client.register(
+      name,
+      LeadFollowupJob, -> { Lead.all },
+      wait_until,
+      ->(lead) { lead.time_zone },
+      options: {
+        phone: phone,
+        transactional: transactional
+      }
+    )
   end
 
   describe '#kickoff' do
@@ -27,7 +37,33 @@ RSpec.describe Drippings::Client do
       end
 
       it 'enqueues a LeadFollowupJob' do
-        expect { schedule }.to have_enqueued_job(LeadFollowupJob).with(anything, phone, transactional: transactional)
+        expect { schedule }
+          .to have_enqueued_job(LeadFollowupJob)
+          .with(anything, phone: phone, transactional: transactional)
+      end
+    end
+
+    context 'with a wait' do
+      let(:wait_until) { { hour: 16 } } # 4PM
+
+      around do |example|
+        travel_to(today, &example)
+      end
+
+      context 'when the send time is in the future' do
+        let(:today) { Time.parse('2022-08-30 09:00:00 PDT') }
+
+        it 'enqueues a LeadFollowupJob today' do
+          expect { schedule }.to have_enqueued_job(LeadFollowupJob).at(Time.parse('2022-08-30 16:00:00 PDT'))
+        end
+      end
+
+      context 'when the send time is in the past' do
+        let(:today) { Time.parse('2022-08-30 17:00:00 PDT') }
+
+        it 'enqueues a LeadFollowupJob tomorrow' do
+          expect { schedule }.to have_enqueued_job(LeadFollowupJob).at(Time.parse('2022-08-31 16:00:00 PDT'))
+        end
       end
     end
 
