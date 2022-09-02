@@ -29,5 +29,17 @@ Gemspec/RequiredRubyVersion:
 Rails/SkipsModelValidations:
   Enabled: false
 
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/NestedGroups:
+  Max: 6
+
 Metrics/AbcSize:
   Enabled: false
+
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/ParameterLists:
+  Max: 6
