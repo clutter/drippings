@@ -9,8 +9,8 @@ RSpec.describe Drippings::Client do
     client.register(
       name,
       LeadFollowupJob, -> { Lead.all },
-      wait_until,
-      ->(lead) { lead.time_zone },
+      wait_until: wait_until,
+      time_zone: ->(lead) { lead.time_zone },
       options: {
         phone: phone,
         transactional: transactional
