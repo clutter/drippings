@@ -28,7 +28,7 @@ module Drippings
       end
     end
 
-    def register(name, job, scope, wait_until = nil, time_zone = nil, options: {})
+    def register(name, job, scope, wait_until: nil, time_zone: nil, options: {})
       raise ArgumentError, "A drip has already been registered for #{name}" if @drips[name].present?
       raise ArgumentError, 'Job must be a subclass of Drippings::ProcessJob' unless job < Drippings::ProcessJob
       if wait_until.present? && time_zone.nil?

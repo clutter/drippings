@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    drippings (0.1.0)
+    drippings (0.2.0)
       rails
 
 GEM
