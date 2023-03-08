@@ -9,7 +9,7 @@ module Drippings
       arel_on = Arel::Nodes::On.new(
         arel_table[:name].eq(name)
           .and(arel_table[:resource_id].eq(scope.arel_table[:id]))
-          .and(arel_table[:resource_type].eq(scope.klass.name))
+          .and(arel_table[:resource_type].eq(scope.base_class.name))
       )
 
       arel_join = Arel::Nodes::OuterJoin.new(arel_table, arel_on)
