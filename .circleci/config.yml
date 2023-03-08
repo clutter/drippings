@@ -26,9 +26,28 @@ jobs:
       - run: bundle exec rake db:test:prepare
       - ruby/rspec-test
 
+  release:
+    executor: default
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run: bundle exec rake release
+
 workflows:
   version: 2.1
   build:
     jobs:
       - rubocop
       - rspec
+  publish:
+    when:
+      and:
+        - equal: [main, << pipeline.git.branch >>]
+        - matches:
+            pattern: /^v\d+\.\d+\.\d+$/
+            value: << pipeline.git.tag >>
+    jobs:
+      - release:
+          requires:
+            - rspec
+            - rubocop
